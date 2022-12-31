@@ -1,8 +1,7 @@
 #terraform aws provider config
 provider "aws"{
         region = "us-east-1"
-        access_key= "AKIA4TLON2A73KMQNDWD"
-        secret_key= "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"
+
 }
 
 #aws s3 bucket terraform state backup config
