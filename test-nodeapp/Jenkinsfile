@@ -1,0 +1,32 @@
+pipeline{
+	agent {label 'app-node-server'}
+	stages{		
+		stage("Building a Docker image out of Dockerfile"){
+			steps{
+				sh 'sudo docker build ./course11-assignment-node-app -f course11-assignment-node-app/Dockerfile -t node-web-app:latest'
+			}
+		}
+
+		stage("ECR Setup in app host server"){
+			steps{
+				sh 'sudo apt install awscli -y'
+				sh 'aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 866204373055.dkr.ecr.us-east-1.amazonaws.com'
+			}
+		}
+		
+		stage("Pushing the image to ECR"){
+			steps{
+				
+					sh 'sudo docker tag node-web-app:latest 866204373055.dkr.ecr.us-east-1.amazonaws.com/assignment-ecr:latest'
+					sh 'sudo docker image push 866204373055.dkr.ecr.us-east-1.amazonaws.com/assignment-ecr:latest'								
+			}
+		}
+		
+		stage('Deploy node web app'){
+            steps{ 
+			    sh 'sudo docker container rm -f node-web-app-container'
+				sh 'sudo docker run -d --name node-web-app-container -p 8080:8080 866204373055.dkr.ecr.us-east-1.amazonaws.com/assignment-ecr:latest'
+			}
+        }
+    }
+}
